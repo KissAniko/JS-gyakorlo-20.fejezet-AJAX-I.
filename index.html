@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX</title>
+</head>
+<body>
+
+ <!--     https://www.youtube.com/watch?v=Ls4Y3WJTznM&ab_channel=K%C3%B3db%C3%A1zis     20.f 
+
+    fejlesztői API-k : https://developer.android.com/google/play/developer-api
+    XMLHttpRequest : https://developer.mozilla.org/en-US/docs/WEB/API/XMLHttpRequest?retiredLocale=hu
+
+  Nem blokkolják a stack-et, hanem a böngésző a stack futásával párhuzamosan hajtja végre  a műveletet,
+  és a szerver válasza után futtat további elemeket, amennyiben a szinkronműködés véget ért.
+  Erre azért van szükség, mert nem blokkolhatjuk a szinkron futását, amíg a szerveroldali kérés tart.
+
+  http://jsonplaceholder.typicode.com/posts   -------   megjelenik egy json string 
+
+  - kulcsok : kötelező " " tenni.      Nem így!! ' ' ... hanem így " " .. kettős idézőjelbe 
+  - selektelni szintén id-val tudunk  -->
+
+<button id = "fetch-posts">Posztok lekérése</button>
+
+<div id = "post-list-container"></div>
+
+<script>
+
+document.getElementById("fetch-posts").onclick =  function(){                          // onclick eseményre reagáljon
+//console.log("klikk");
+    var xhr = new XMLHttpRequest;                                                // new == kulcs , XMLHttpRequest =  object 
+                                                                                 // ... ezek együtt reprezentálnak egy szerveroldali kérést
+                                                                                 // ---> szerverekkel interakcióba tudok lépni
+                                                                                 // A kulcsok alá bekötött funkcionalitást használom arra, hogy a
+                                                                                 //... kéréseket megküldjem
+
+    xhr.onreadystatechange  = function(){                                        // konfigurálás --- bekötjük a function-t
+
+                                                                        /* A redyState  a kérelem állapotát jelző előjel nélküli számmal tér vissza, amely lehet: 
+                                                                                  - 0. : ha a kérés nem inicializált
+                                                                                  - 1. : ha a kapcsolat létrejött a szerverrel
+                                                                                  - 2. : ha a kérés elfogadva
+                                                                                  - 3. : ha a kérés feldolgozása folyamatban
+                                                                                  - 4. : ha a kérés kész, válasz kész  */
+
+    if ((xhr.readyState === 4 && xhr.status === 200)) {                           // Status = objektum statusz . A 200 valami méretet jelent, de nem tudom pontosan mit is.
+
+    //  console.log(xhr.responseText);                                            // ezzel kilogolok egy responseText kulcs alatti értéket, amely alatt az értékek módosulnak,
+                                                                                  // ... ide íródnak a szerverről érkező  válaszok
+
+                                                                                  // Mivel az előbbi string, így át kell alakítani JS adatstruktúrává:
+    console.log(JSON.parse(xhr.responseText));                                    // .. Létezik egy beéptett function ---> JSON.parse ---> az előző sort(47) ezzel átalakítjuk.
+
+
+    var posts = JSON.parse(xhr.responseText);                                      // <--- Ha azt szeretném, hogy HTML tartalomként, minden egyes
+                                                                                   //      ... elem kapcsán megjelenjen PL jelen esetben a title és a body.
+                                                                                   // Az előző sornak (53) adunk egy változót ---> posts
+                                                                                   
+    var postListHTML = '';                                                         // Inicializálok egy változót (postListHTML) üres string értékkel.
+    for(var post of posts)  {                                                      // Végig iterálok a posts listáján és minden 
+                                                                                   // ... egyes posts kapcsán hozzá tudok írni az üres stringhez.
+
+    postListHTML += '<p>' + post.title + '</p' + '<small>'+ post.body + '</small>';                                                              // Az iteráción belül meagadhatom, hogy a postListHTML
+                                                                                   // ... mindig legyen = azzal ami volt + azzal a tample-ttel(<p>), amit megadunk, s
+                                                                                   // ... amik állhatnak teg-ekből is (most title és body)
+        }
+    //document.getElementById("post-list-container").innerHTML='';                   // Bekötjük a post-list container-t 
+    document.getElementById("post-list-container").innerHTML = postListHTML;         // megjelenítjük a user számára                                                                                                                                    
+
+    }                                                       
+  }
+
+      xhr.open('GET', 'http://jsonplaceholder.typicode.com/posts' );               // meg kell adni az objektumnak, hogy hova küldje a kérést... az open-re, ha ráviszem
+                                                                                   // ... az egeret, lehet látni, hogy mit kér. Kéri a request method-ját és URL-jét.
+                                                                                   // Jelen esetben a methodus = GET,  URL = http://jsonplaceholder.typicode.com/posts
+
+      xhr.send();                                                                  // A send function meghívásával kiküldöm a kérést
+
+}
+         
+
+</script>
+
+</body>
+</html>
